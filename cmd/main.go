@@ -8,6 +8,7 @@ import (
 	"api-music/internal/models/trackacktivities"
 	membershipRepo "api-music/internal/repository/memberships"
 	"api-music/internal/repository/spotify"
+	trackactivitiesRepo "api-music/internal/repository/trackactivities"
 	membershipSvc "api-music/internal/service/memberships"
 	"api-music/internal/service/tracks"
 	"api-music/pkg/httpclient"
@@ -47,10 +48,11 @@ func main() {
 	httpClient := httpclient.NewClient(&http.Client{})
 
 	spotifyOutbond := spotify.NewSpotyOutbound(cfg, httpClient)
-	trackSvc := tracks.NewService(spotifyOutbond)
+	trackActivitiesRepo := trackactivitiesRepo.NewRepositoy(db)
 
 	membershipRepo := membershipRepo.NewRepositoy(db)
 	membershipsSvc := membershipSvc.NewService(cfg, membershipRepo)
+	trackSvc := tracks.NewService(spotifyOutbond, trackActivitiesRepo)
 	membershipHandler := membershipHandler.NewHandler(r, membershipsSvc)
 	membershipHandler.RegisterRoute()
 	tracksHandler := tracksHandler.NewHandler(r, trackSvc)
